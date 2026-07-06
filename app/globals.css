@@ -134,7 +134,166 @@ html.theme-wash *::after {
 
 .reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
+}
+
+/* Trigger container: invisible itself, orchestrates the effects inside it */
+.reveal.trigger {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* Masked heading: text rises out of an overflow-hidden line */
+.mask-wrap {
+  overflow: hidden;
+}
+
+.mask-text {
+  display: inline-block;
+  transform: translateY(115%);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.05s;
+}
+
+.trigger.is-visible .mask-text {
+  transform: none;
+}
+
+/* Follows the masked heading in */
+.trigger .fade-late {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.3s,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.3s;
+}
+
+.trigger.is-visible .fade-late {
+  opacity: 1;
+  transform: none;
+}
+
+/* Project panels slide in from their own side of the row */
+.trigger .slide-l,
+.trigger .slide-r {
+  opacity: 0;
+  transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.trigger .slide-l {
+  transform: translateX(-60px);
+}
+
+.trigger .slide-r {
+  transform: translateX(60px);
+}
+
+.trigger.is-visible .slide-l,
+.trigger.is-visible .slide-r {
+  opacity: 1;
+  transform: none;
+}
+
+/* Text column cascades in one element at a time */
+.trigger .fx > * {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.trigger.is-visible .fx > * {
+  opacity: 1;
+  transform: none;
+}
+
+.trigger.is-visible .fx > *:nth-child(1) { transition-delay: 0.2s; }
+.trigger.is-visible .fx > *:nth-child(2) { transition-delay: 0.28s; }
+.trigger.is-visible .fx > *:nth-child(3) { transition-delay: 0.36s; }
+.trigger.is-visible .fx > *:nth-child(4) { transition-delay: 0.44s; }
+.trigger.is-visible .fx > *:nth-child(5) { transition-delay: 0.52s; }
+.trigger.is-visible .fx > *:nth-child(6) { transition-delay: 0.6s; }
+
+/* Skill chips pop in sequence (animation on the li so hover on the
+   inner span is never delayed) */
+@keyframes chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.trigger .chip-in {
+  opacity: 0;
+}
+
+.trigger.is-visible .chip-in {
+  animation: chip-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.trigger.is-visible .chip-in:nth-child(1) { animation-delay: 0.15s; }
+.trigger.is-visible .chip-in:nth-child(2) { animation-delay: 0.22s; }
+.trigger.is-visible .chip-in:nth-child(3) { animation-delay: 0.29s; }
+.trigger.is-visible .chip-in:nth-child(4) { animation-delay: 0.36s; }
+.trigger.is-visible .chip-in:nth-child(5) { animation-delay: 0.43s; }
+.trigger.is-visible .chip-in:nth-child(6) { animation-delay: 0.5s; }
+.trigger.is-visible .chip-in:nth-child(7) { animation-delay: 0.57s; }
+.trigger.is-visible .chip-in:nth-child(8) { animation-delay: 0.64s; }
+
+/* Timeline draws itself downward */
+.tl-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+}
+
+.trigger.is-visible .tl-line {
+  transform: scaleY(1);
+}
+
+/* ---------- Scroll-driven motion (progressive enhancement) ---------- */
+@supports (animation-timeline: view()) {
+  /* Panels drift gently against the scroll for depth */
+  .drift {
+    animation: drift linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+
+  @keyframes drift {
+    from {
+      transform: translateY(26px);
+    }
+    to {
+      transform: translateY(-26px);
+    }
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  /* Hero recedes as you scroll into the page */
+  .hero-fade {
+    animation: hero-fade linear both;
+    animation-timeline: scroll();
+    animation-range: 0 85vh;
+  }
+
+  @keyframes hero-fade {
+    to {
+      opacity: 0;
+      transform: translateY(-48px) scale(0.985);
+    }
+  }
 }
 
 /* ---------- Nav ---------- */
@@ -272,12 +431,18 @@ html.theme-wash *::after {
 .timeline-item::before {
   content: "";
   position: absolute;
-  left: calc(-2rem - 5px); /* sit on the section's border-l, offset by the pl-8 */
+  left: calc(-2rem - 5px); /* sit on the section's timeline, offset by the pl-8 */
   top: 8px;
   width: 9px;
   height: 9px;
   border-radius: 50%;
   background: var(--accent);
+  transform: scale(0);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s;
+}
+
+.reveal.is-visible .timeline-item::before {
+  transform: scale(1);
 }
 
 /* ---------- Skill chip ---------- */
@@ -303,15 +468,26 @@ html.theme-wash *::after {
     animation-duration: 0.01s;
     animation-delay: 0s;
   }
-  .reveal {
+  .reveal,
+  .trigger .mask-text,
+  .trigger .fade-late,
+  .trigger .slide-l,
+  .trigger .slide-r,
+  .trigger .fx > *,
+  .trigger .chip-in,
+  .tl-line,
+  .timeline-item::before {
     transition: none;
+    animation: none;
     opacity: 1;
     transform: none;
   }
   .scroll-cue,
   .eq-bar,
   .live-dot,
-  .cursor-blink {
+  .cursor-blink,
+  .drift,
+  .hero-fade {
     animation: none;
   }
 }
