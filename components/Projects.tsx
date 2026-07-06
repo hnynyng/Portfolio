@@ -39,8 +39,10 @@ const projects: Project[] = [
     description:
       "A chatbot with a hacker-terminal interface, wired to a live Gemini API integration on a Flask backend — type anything and it answers in character. Built as a school project; the aesthetic is green-on-black on purpose.",
     tech: ["Python", "Flask", "Gemini API", "HTML/CSS"],
-    links: [],
-    note: "School project — repo private for now",
+    links: [
+      { label: "View on GitHub", href: "https://github.com/clemedev/ClementGPT" },
+    ],
+    note: "School project",
     visual: <ClementVisual />,
   },
 ];
